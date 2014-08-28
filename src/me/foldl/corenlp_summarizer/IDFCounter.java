@@ -1,5 +1,6 @@
 package me.foldl.corenlp_summarizer;
 
+import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.io.ReaderInputStream;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -28,6 +29,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +135,12 @@ public class IDFCounter {
      */
     @Override
     public Counter<String> call() throws Exception {
-      return getIDFMapForFile(new FileReader(file));
+      // We need to hallucinate some overarching document tag.. because the Gigaword files don't
+      // have them :/
+      String fileContents = IOUtils.slurpFile(file);
+      fileContents = "<docs>" + fileContents + "</docs>";
+
+      return getIDFMapForFile(new StringReader(fileContents));
     }
   }
 
