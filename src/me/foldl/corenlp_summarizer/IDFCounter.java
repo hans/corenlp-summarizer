@@ -25,7 +25,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Reader;
@@ -114,7 +113,11 @@ public class IDFCounter {
 
       Element text = (Element) texts.item(0);
       String textContent = getFullTextContent(text);
+
       idfMap.addAll(getIDFMapForDocument(textContent));
+
+      // Increment magic counter
+      idfMap.incrementCount("__all__");
     }
 
     return idfMap;
@@ -151,8 +154,8 @@ public class IDFCounter {
     ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     List<Future<Counter<String>>> futures = new ArrayList<Future<Counter<String>>>();
 
-    for (int i = 0; i < args.length; i++)
-      futures.add(pool.submit(new FileIDFBuilder(new File(args[i]))));
+    for (String filePath : args)
+      futures.add(pool.submit(new FileIDFBuilder(new File(filePath))));
 
     Counter<String> overall = new ClassicCounter<String>();
     for (Future<Counter<String>> future : futures)
