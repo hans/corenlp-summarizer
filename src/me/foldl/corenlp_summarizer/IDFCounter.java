@@ -148,8 +148,6 @@ public class IDFCounter {
 
   public static void main(String[] args) throws InterruptedException, ExecutionException,
     IOException {
-    IDFCounter idfCounter = new IDFCounter();
-
     ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     List<Future<Counter<String>>> futures = new ArrayList<Future<Counter<String>>>();
 
