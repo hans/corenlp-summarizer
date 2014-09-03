@@ -70,7 +70,7 @@ public class Summarizer {
 
       // Weight sentences based on their position in the document
       int index = sentence.get(CoreAnnotations.SentenceIndexAnnotation.class);
-      double indexWeight = 2.0 / index;
+      double indexWeight = 5.0 / index;
 
       return indexWeight * tfIdf;
     }
@@ -85,9 +85,12 @@ public class Summarizer {
     }
 
     private double tfIDFWeight(String word) {
-      double tf = Math.sqrt(termFrequencies.getCount(word));
-      double idf = 1 + Math.log(numDocuments / (1.0 + dfCounter.getCount(word)));
-      return tf * Math.pow(idf, 2);
+      if (dfCounter.getCount(word) == 0)
+        return 0;
+
+      double tf = 1 + Math.log(termFrequencies.getCount(word));
+      double idf = Math.log(numDocuments / dfCounter.getCount(word));
+      return tf * idf;
     }
   }
 
