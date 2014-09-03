@@ -7,30 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/stanford-spanish-corenlp-models-current.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-        <jarDirectory url="jar://$MODULE_DIR$/lib/stanford-spanish-corenlp-models-current.jar!/" recursive="false" />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/javanlp-core.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/lib/javanlp-core.jar!/edu/stanford/nlp/ie/ner/webapp/WEB-INF/src" />
-          <root url="jar://$MODULE_DIR$/lib/javanlp-core.jar!/edu/stanford/nlp/time/suservlet/WEB-INF/src" />
-          <root url="jar://$MODULE_DIR$/lib/javanlp-core.jar!/edu/stanford/nlp/parser/webapp/WEB-INF/src" />
-          <root url="jar://$MODULE_DIR$/lib/javanlp-core.jar!/edu/stanford/nlp/pipeline/webapp/WEB-INF/src" />
-        </SOURCES>
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>
 

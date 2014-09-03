@@ -59,14 +59,27 @@ public class Summarizer {
 
     @Override
     public int compare(CoreMap o1, CoreMap o2) {
-      return (int) Math.round(tfIDFWeights(o1) - tfIDFWeights(o2));
+      return (int) Math.round(score(o2) - score(o1));
+    }
+
+    /**
+     * Compute sentence score (higher is better).
+     */
+    private double score(CoreMap sentence) {
+      double tfIdf = tfIDFWeights(sentence);
+
+      // Weight sentences based on their position in the document
+      int index = sentence.get(CoreAnnotations.SentenceIndexAnnotation.class);
+      double indexWeight = 2.0 / index;
+
+      return indexWeight * tfIdf;
     }
 
     private double tfIDFWeights(CoreMap sentence) {
       double total = 0;
       for (CoreLabel cl : sentence.get(CoreAnnotations.TokensAnnotation.class))
         if (cl.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("n"))
-          total += tfIDFWeight(cl.get(CoreAnnotations.TextAnnotation.class));
+          total += tfIDFWeight(cl.get(CoreAnnotations.TextAnnotation.class).toLowerCase());
 
       return total;
     }
@@ -83,15 +96,20 @@ public class Summarizer {
     return sentences;
   }
 
-  public String summarize(String document) {
+  public String summarize(String document, int numSentences) {
     Annotation annotation = pipeline.process(document);
     List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
 
     Counter<String> tfs = getTermFrequencies(sentences);
     sentences = rankSentences(sentences, tfs);
 
-    System.err.println(sentences);
-    return null;
+    StringBuilder ret = new StringBuilder();
+    for (int i = 0; i < numSentences; i++) {
+      ret.append(sentences.get(i));
+      ret.append(" ");
+    }
+
+    return ret.toString();
   }
 
   private static final String DF_COUNTER_PATH = "idf-counter.ser";
@@ -110,7 +128,9 @@ public class Summarizer {
     Counter<String> dfCounter = loadDfCounter(DF_COUNTER_PATH);
 
     Summarizer summarizer = new Summarizer(dfCounter);
-    summarizer.summarize(content);
+    String result = summarizer.summarize(content, 2);
+
+    System.out.println(result);
   }
 
 }
