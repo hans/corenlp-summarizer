@@ -25,10 +25,11 @@ public class Summarizer {
 
   private static final StanfordCoreNLP pipeline;
   static {
-    Properties props = PropertiesUtils.fromString(
-      "annotators=tokenize,ssplit,pos\n" +
-        "tokenize.language=es\n" +
-        "pos.model=edu/stanford/nlp/models/pos-tagger/spanish/spanish-distsim.tagger");
+    Properties props = new Properties();
+    props.setProperty("annotators", "tokenize,ssplit,pos");
+    props.setProperty("tokenize.language", "es");
+    props.setProperty("pos.model", "edu/stanford/nlp/models/pos-tagger/spanish/spanish-distsim.tagger");
+
     pipeline = new StanfordCoreNLP(props);
   }
 
