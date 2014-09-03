@@ -106,7 +106,7 @@ public class IDFCounter {
 
     Element doc;
     Counter<String> idfMap = new ClassicCounter<String>();
-    for (int i = 0; i < 5/*docNodes.getLength()*/; i++) {
+    for (int i = 0; i < docNodes.getLength(); i++) {
       doc = (Element) docNodes.item(i);
       NodeList texts = doc.getElementsByTagName(TAG_TEXT);
       assert texts.getLength() == 1;
