@@ -30,7 +30,10 @@ import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -39,7 +42,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class IDFCounter {
+public class DocumentFrequencyCounter {
 
   private static final StanfordCoreNLP pipeline;
   static {
@@ -147,7 +150,8 @@ public class IDFCounter {
     }
   }
 
-  private static final String OUT_FILE = "idf-counter.ser";
+  private static final String OUT_FILE = "df-counts.ser";
+  private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
   public static void main(String[] args) throws InterruptedException, ExecutionException,
     IOException {
@@ -157,13 +161,27 @@ public class IDFCounter {
     for (String filePath : args)
       futures.add(pool.submit(new FileIDFBuilder(new File(filePath))));
 
+    int finished = 0;
     Counter<String> overall = new ClassicCounter<String>();
-    for (Future<Counter<String>> future : futures)
+
+    for (Future<Counter<String>> future : futures) {
+      System.err.printf("%s: Polling future #%d / %d%n",
+          dateFormat.format(new Date()), finished + 1, args.length);
+      finished++;
+      System.err.printf("%s: Finished future #%d / %d%n",
+          dateFormat.format(new Date()), finished, args.length);
+
+      System.err.printf("\tMerging counter.. ");
       overall.addAll(future.get());
+      System.err.printf("done.%n");
+    }
     pool.shutdown();
 
+    System.err.printf("\n%s: Saving to '%s'.. ", dateFormat.format(new Date()),
+        OUT_FILE);
     ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(OUT_FILE));
     oos.writeObject(overall);
+    System.err.printf("done.%n");
   }
 
 }
