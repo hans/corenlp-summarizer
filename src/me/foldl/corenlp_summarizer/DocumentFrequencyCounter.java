@@ -2,14 +2,14 @@ package me.foldl.corenlp_summarizer;
 
 import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.io.ReaderInputStream;
-import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.ling.HasWord;
+import edu.stanford.nlp.ling.TaggedWord;
+import edu.stanford.nlp.process.DocumentPreprocessor;
+import edu.stanford.nlp.process.TokenizerFactory;
 import edu.stanford.nlp.stats.ClassicCounter;
 import edu.stanford.nlp.stats.Counter;
-import edu.stanford.nlp.util.CoreMap;
-import edu.stanford.nlp.util.PropertiesUtils;
+import edu.stanford.nlp.tagger.maxent.MaxentTagger;
+import edu.stanford.nlp.trees.international.spanish.SpanishTreebankLanguagePack;
 import edu.stanford.nlp.util.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -35,7 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -45,16 +44,15 @@ import java.util.regex.Pattern;
 
 public class DocumentFrequencyCounter {
 
-  private static final StanfordCoreNLP pipeline;
-  static {
-    Properties props = PropertiesUtils.fromString(
-      "annotators=tokenize,ssplit,pos\n" +
-        "tokenize.language=es\n" +
-        "pos.model=edu/stanford/nlp/models/pos-tagger/spanish/spanish-distsim.tagger");
-    pipeline = new StanfordCoreNLP(props);
-  }
+  private static final MaxentTagger tagger =
+      new MaxentTagger("edu/stanford/nlp/models/pos-tagger/spanish/spanish-distsim.tagger");
+
+  private static final int MAX_SENTENCE_LENGTH = 100;
 
   private static final Pattern headingSeparator = Pattern.compile("[-=]{3,}");
+
+  private static final SpanishTreebankLanguagePack tlp = new SpanishTreebankLanguagePack();
+  private static final TokenizerFactory<? extends HasWord> tokenizerFactory = tlp.getTokenizerFactory();
 
   /**
    * Get an IDF map for the given document string.
@@ -67,17 +65,19 @@ public class DocumentFrequencyCounter {
     // / don't help anything
     document = headingSeparator.matcher(document).replaceAll("");
 
-    Annotation annotation = pipeline.process(document);
-    List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+    DocumentPreprocessor preprocessor = new DocumentPreprocessor(new StringReader(document));
+    preprocessor.setTokenizerFactory(tokenizerFactory);
 
     Counter<String> idfMap = new ClassicCounter<String>();
-    for (CoreMap sentence : sentences) {
-      List<CoreLabel> cls = sentence.get(CoreAnnotations.TokensAnnotation.class);
+    for (List<HasWord> sentence : preprocessor) {
+      if (sentence.size() > MAX_SENTENCE_LENGTH)
+        continue;
 
-      for (CoreLabel cl : cls) {
-        String pos = cl.get(CoreAnnotations.PartOfSpeechAnnotation.class);
-        if (pos.startsWith("n"))
-          idfMap.incrementCount(cl.get(CoreAnnotations.TextAnnotation.class));
+      List<TaggedWord> tagged = tagger.tagSentence(sentence);
+
+      for (TaggedWord w : tagged) {
+        if (w.tag().startsWith("n"))
+          idfMap.incrementCount(w.word());
       }
     }
 
