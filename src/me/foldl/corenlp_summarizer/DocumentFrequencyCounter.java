@@ -41,6 +41,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.regex.Pattern;
 
 public class DocumentFrequencyCounter {
 
@@ -53,6 +54,8 @@ public class DocumentFrequencyCounter {
     pipeline = new StanfordCoreNLP(props);
   }
 
+  private static final Pattern headingSeparator = Pattern.compile("[-=]{3,}");
+
   /**
    * Get an IDF map for the given document string.
    *
@@ -60,6 +63,10 @@ public class DocumentFrequencyCounter {
    * @return
    */
   private static Counter<String> getIDFMapForDocument(String document) {
+    // Clean up -- remove some Gigaword patterns that slow things down
+    // / don't help anything
+    document = headingSeparator.matcher(document).replaceAll("");
+
     Annotation annotation = pipeline.process(document);
     List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
 
