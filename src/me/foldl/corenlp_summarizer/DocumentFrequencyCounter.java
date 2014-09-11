@@ -50,6 +50,8 @@ public class DocumentFrequencyCounter {
   private static final int MAX_SENTENCE_LENGTH = 100;
 
   private static final Pattern headingSeparator = Pattern.compile("[-=]{3,}");
+  private static final Pattern paragraphMarker =
+      Pattern.compile("</?(?:TEXT|P)>(\n|$)");
 
   private static final SpanishTreebankLanguagePack tlp = new SpanishTreebankLanguagePack();
   private static final TokenizerFactory<? extends HasWord> tokenizerFactory = tlp.getTokenizerFactory();
@@ -97,7 +99,7 @@ public class DocumentFrequencyCounter {
     String str = buffer.toString();
 
     // Remove paragraph markers
-    str = str.replaceAll("</?(?:TEXT|P)>(\n|$)", "");
+    str = paragraphMarker.matcher(str).replaceAll("");
 
     return str;
   }
