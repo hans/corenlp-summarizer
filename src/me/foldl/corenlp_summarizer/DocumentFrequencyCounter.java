@@ -167,12 +167,13 @@ public class DocumentFrequencyCounter {
     for (Future<Counter<String>> future : futures) {
       System.err.printf("%s: Polling future #%d / %d%n",
           dateFormat.format(new Date()), finished + 1, args.length);
+      Counter<String> result = future.get();
       finished++;
       System.err.printf("%s: Finished future #%d / %d%n",
           dateFormat.format(new Date()), finished, args.length);
 
       System.err.printf("\tMerging counter.. ");
-      overall.addAll(future.get());
+      overall.addAll(result);
       System.err.printf("done.%n");
     }
     pool.shutdown();
