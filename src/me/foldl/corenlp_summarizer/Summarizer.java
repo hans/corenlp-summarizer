@@ -80,7 +80,7 @@ public class Summarizer {
       double total = 0;
       for (CoreLabel cl : sentence.get(CoreAnnotations.TokensAnnotation.class))
         if (cl.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("n"))
-          total += tfIDFWeight(cl.get(CoreAnnotations.TextAnnotation.class).toLowerCase());
+          total += tfIDFWeight(cl.get(CoreAnnotations.TextAnnotation.class));
 
       return total;
     }
