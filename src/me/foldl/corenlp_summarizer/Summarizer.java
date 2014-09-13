@@ -67,13 +67,7 @@ public class Summarizer {
      * Compute sentence score (higher is better).
      */
     private double score(CoreMap sentence) {
-      double tfIdf = tfIDFWeights(sentence);
-
-      // Weight sentences based on their position in the document
-      int index = sentence.get(CoreAnnotations.SentenceIndexAnnotation.class);
-      double indexWeight = 5.0 / index;
-
-      return indexWeight * tfIdf;
+      return tfIDFWeights(sentence);
     }
 
     private double tfIDFWeights(CoreMap sentence) {
