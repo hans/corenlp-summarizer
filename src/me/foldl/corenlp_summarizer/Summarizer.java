@@ -110,7 +110,7 @@ public class Summarizer {
     return ret.toString();
   }
 
-  private static final String DF_COUNTER_PATH = "idf-counter.ser";
+  private static final String DF_COUNTER_PATH = "df-counts.ser";
 
   @SuppressWarnings("unchecked")
   private static Counter<String> loadDfCounter(String path)
