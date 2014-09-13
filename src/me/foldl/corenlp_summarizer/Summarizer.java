@@ -90,7 +90,7 @@ public class Summarizer {
         return 0;
 
       double tf = 1 + Math.log(termFrequencies.getCount(word));
-      double idf = Math.log(numDocuments / dfCounter.getCount(word));
+      double idf = Math.log(numDocuments / (1 + dfCounter.getCount(word)));
       return tf * idf;
     }
   }
